@@ -1,0 +1,8 @@
+{
+  "name": "ImageProcessor",
+  "version": "",
+  "dependencies": {
+    "bluebird": "^3.5.0",
+    "gm": "^1.23.0"
+  }
+}

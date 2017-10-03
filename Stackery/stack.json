@@ -1,60 +1,84 @@
 {
   "nodes": [
     {
-      "id": "c8cf1b69",
-      "type": "function",
-      "name": "Hello!",
-      "outputs": 1,
-      "memorySize": 128,
-      "timeout": 30,
-      "runtime": "nodejs",
-      "location": "inline",
-      "noerr": true,
-      "x": 410,
-      "y": 220,
-      "wires": [
-        []
-      ]
-    },
-    {
-      "id": "1faa4edb",
-      "type": "restApi",
-      "method": "GET",
-      "path": "/",
-      "x": 190,
-      "y": 220,
+      "id": "4792ca95",
+      "type": "objectStore",
+      "x": 365,
+      "y": 223,
+      "name": "Uploaded Images",
+      "publicPermissions": "none",
+      "websiteHosting": false,
       "wires": [
         [
-          "c8cf1b69"
+          "980eb796"
         ]
       ]
     },
     {
-      "id": "4b94e000",
-      "type": "function",
-      "name": "Echo",
-      "outputs": 1,
-      "memorySize": 128,
-      "timeout": 30,
-      "runtime": "nodejs",
-      "location": "inline",
-      "noerr": true,
-      "x": 410,
-      "y": 280,
+      "id": "8bd78ca0",
+      "type": "objectStore",
+      "x": 1020,
+      "y": 243,
+      "name": "Processed Images",
+      "publicPermissions": "read",
+      "websiteHosting": false,
       "wires": [
         []
       ]
     },
     {
-      "id": "e6ad48cf",
-      "type": "restApi",
-      "method": "GET",
-      "path": "/{message}",
-      "x": 210,
-      "y": 280,
+      "id": "6f5614a3",
+      "type": "function",
+      "x": 770,
+      "y": 222,
+      "name": "imageProcessor",
+      "outputs": 2,
+      "memorySize": 128,
+      "timeout": 120,
+      "runtime": "nodejs",
+      "location": "inline",
+      "envVars": {},
       "wires": [
         [
-          "4b94e000"
+          "ae5cc3ac"
+        ],
+        [
+          "8bd78ca0"
+        ]
+      ]
+    },
+    {
+      "id": "980eb796",
+      "type": "function",
+      "x": 575,
+      "y": 222,
+      "name": "notifier",
+      "outputs": 1,
+      "memorySize": 128,
+      "timeout": 60,
+      "runtime": "nodejs",
+      "location": "inline",
+      "envVars": {},
+      "wires": [
+        [
+          "6f5614a3"
+        ]
+      ]
+    },
+    {
+      "id": "ae5cc3ac",
+      "type": "link out",
+      "x": 974,
+      "y": 192
+    },
+    {
+      "id": "f978d115",
+      "type": "link in",
+      "x": 135,
+      "y": 222,
+      "wires": [
+        [
+          "4792ca95"
         ]
       ]
     }
