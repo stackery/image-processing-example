@@ -202,12 +202,12 @@ Now all that is left is to deploy the stack!
 1. Click on the deployment in the **Current Deployment** section.
 1. Select the *Uploaded Images* ObjectStore node.
 1. Copy the **S3 Bucket Name**.
-1. Open https://s3.console.aws.amazon.com/s3/buckets/**\<S3 Bucket Name\>** in a new tab.
+1. Open https://s3.console.aws.amazon.com/s3/buckets/**<S3 Bucket Name\>** in a new tab.
 1. Upload an image to the S3 Bucket.
 1. Go back to the Stackery Dashboard.
 1. Select the *Processed Images* ObjectStore node.
 1. Copy the **S3 Bucket Name**.
-1. Open https://s3.console.aws.amazon.com/s3/buckets/**\<S3 Bucket Name\>** in a new tab.
+1. Open https://s3.console.aws.amazon.com/s3/buckets/**<S3 Bucket Name\>** in a new tab.
     * You should see the original image and a thumbnail suffixed with 'x200'
 
 And just like that, you have a simple, serverless-based, automatic thumbnail generation!
