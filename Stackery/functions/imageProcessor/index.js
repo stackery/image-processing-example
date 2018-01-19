@@ -1,23 +1,36 @@
-const stackery = require('stackery');
+const AWS = require('aws-sdk');
 const gm = require('gm').subClass({imageMagick: true});
+const s3 = new AWS.S3();
 
-module.exports = function handler (message) {
-  let baseName = message.baseName;
+module.exports = function handler (event, context, callback) {
+  console.log(event);
+
+  let record = event.Records[0];
+  if (record.eventName !== 'ObjectCreated:Put') {
+    return;
+  }
+  let sourceBucket = record.s3.bucket.name;
+  let objectKey = record.s3.object.key;
+
+  // Only operate on image files
+  // For simplicity in this guide, we'll only operate on '.jpg' files
+  let result = objectKey.match(/(.*)\.jpg$/);
+  if (!result) {
+    return;
+  }
   let imageBuffer;
-
   let params = {
-    action: 'get',
-    key: message.key
+    Key: objectKey,
+    Bucket: sourceBucket
   };
 
-  // Retrieve image from ObjectStore "Uploaded Images" 
-  // which is connected to output port 0
-  return stackery.output(params, {port: 0})
+  // Retrieve image from ObjectStore "Uploaded Images"
+  s3.getObject(params).promise()
     .then((data) => {
       return new Promise((resolve, reject) => {
-        imageBuffer = data[0].body;
+        imageBuffer = data.Body;
 
-        // For this demo, have imageMagick create a 200x200 thumbnail
+        // imageMagick create a 200x200 thumbnail
         gm(imageBuffer)
           .resize(200, 200)
           .stream((err, stdout, stderr) => {
@@ -45,41 +58,20 @@ module.exports = function handler (message) {
     })
     .then((outputBuffer) => {
       // Store generated thumbnail to Object Store "Processed Images"
-      // which is connected to output port 1
+      // We look up the S3 bucket using the STACKERY_PORTS env var
+      const ports = JSON.parse(process.env.STACKERY_PORTS);
       let params = {
-        action: 'put',
-        key: `${baseName}.x200.jpeg`,
-        body: outputBuffer,
-        metadata: {'Content-Type': 'image/jpeg'}
+        Body: outputBuffer.toString('binary'),
+        Key: `200x200-${objectKey}`,
+        Bucket: ports[0][0].bucket
       };
-      return stackery.output(params, {port: 1});
-    })
-    .then((response) => {
-      // Store the original image to Object Store "Processed Images"
-      let params = {
-        action: 'put',
-        key: message.key,
-        body: imageBuffer,
-        metadata: {'Content-Type': 'image/jpeg'}
-      };
-
-      return stackery.output(params, {port: 1});
-    })
-    .then((response) => {
-      // Delete the original image from Object Store "Uploaded Images"
-      let params = {
-        action: 'delete',
-        key: message.key
-      };
-
-      return stackery.output(params, {port: 0});
+      return s3.putObject(params).promise();
     })
     .then((response) => {
       // Done!
-      return {};
+      callback(null, {});
     })
     .catch((error) => {
-      console.log(`Error: ${error}`);
-      return {};
+      callback(error);
     });
 };
